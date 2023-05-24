@@ -73,6 +73,7 @@ nav {
   border-bottom: 0.2px solid #dbdbdb;
   margin-top: 5em;
   margin-bottom: 2em;
+  margin-left: -14%
 }
 
 #profilePhotoInput {
@@ -80,19 +81,21 @@ nav {
 }
 
 .profile-photo {
-  background: #000;
   width: 10em;
   height: 10em;
   border-radius: 50%;
-  margin-top: 0.5em;
+  position: relative;
+  top:-20% !important;
+  left:34%;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 900px) {
   .profile-photo {
     width: 5em;
     height: 5em;
-    margin-top: 3em;
-    margin-right: 2em;
+    position: relative;
+    left:-17% !important;
+    top: 3%
   }
 }
 
@@ -163,8 +166,10 @@ nav {
 .gallery {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  row-gap: 1.7em;
+  row-gap: 1em;
   column-gap: 1em;
+  position: relative;
+  left: 4%;
 }
 
 .item {
@@ -204,3 +209,5 @@ nav {
 .item:hover .delete-button {
   opacity: 1;
 }
+
+

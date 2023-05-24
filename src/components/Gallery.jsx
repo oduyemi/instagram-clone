@@ -1,53 +1,37 @@
-import pic1 from "../assets/pic1.jpg"
-import pic2 from "../assets/pic2.jpg"
-import pic3 from "../assets/pic3.jpg"
-import pic4 from "../assets/pic4.jpg"
-import pic5 from "../assets/pic5.jpg"
-
+import getPhotoUrl from "get-photo-url"
+import { useLiveQuery } from "dexie-react-hooks"
+import { db } from "../datastore"
 
 export const Gallery = () => {
+    const allPhotos = useLiveQuery(() => db.gallery.toArray(), [])
+
+    const addPhoto =async () => {
+        db.gallery.add({
+            url: await getPhotoUrl("#addPhotoInput")
+        })
+    }
+
+    const removePhoto = (id) =>{
+        db.gallery.delete(id)
+    }
+
     return(
         <>
-            <input type="file" name="photo" id="addPhotoInput" />
-            <label htmlFor="addPhotoInput">
+            <input type="file" accept="image/*" name="photo" id="addPhotoInput" />
+            <label htmlFor="addPhotoInput" onClick={addPhoto}>
                 <i className="add-photo-button fas fa-plus-square" />
             </label>
 
             <section className="gallery">
-                <div className="item">
-                    <img src={pic1} className="item-image" alt="" />
-                    <button className="delete-button">
-                    Delete
-                    </button>
+                {!allPhotos && <p>Loading...</p>}
+                {allPhotos?.map((photo) => (
+                    <div className="item" key={photo.id}>
+                    <img src={ photo.url } className="item-image" alt="Posts" />
+                    <button className="delete-button" onClick={ ()=> removePhoto(photo.id) }>Delete</button>
                 </div>
+                ))}
+                
 
-                <div className="item">
-                    <img src={pic2} className="item-image" alt="" />
-                    <button className="delete-button">
-                    Delete
-                    </button>
-                </div>
-
-                <div className="item">
-                    <img src={pic3} className="item-image" alt="" />
-                    <button className="delete-button">
-                    Delete
-                    </button>
-                </div>
-
-                <div className="item">
-                    <img src={pic4} className="item-image" alt="" />
-                    <button className="delete-button">
-                    Delete
-                    </button>
-                </div>
-
-                <div className="item">
-                    <img src={pic5} className="item-image" alt="" />
-                    <button className="delete-button">
-                    Delete
-                    </button>
-                </div>
             </section>
       </>
     )

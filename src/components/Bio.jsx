@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import getPhotoUrl from "get-photo-url";
-import profileIcon from "../assets/profileIcon.svg"
+import Dexie from "dexie";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../datastore";
+import profileIcon from "../assets/profileIcon.png"
+
 
 
 
@@ -12,37 +16,50 @@ export const Bio = () => {
     })
 
     const [editFormIsOpen, setEditFormIsOpen] = useState(false)
-    const [profilePhoto, setProfilePhoto] = useState({profileIcon})
+  const [profilePhoto, setProfilePhoto] = useState(profileIcon)
 
-    const updateProfilePhoto = async () => {
-        const newProfilePhoto = await getPhotoUrl("#profilePhotoInput")
-        setProfilePhoto(newProfilePhoto)
-    }
- 
-    const updateUserDetails = (event) => {
-        event.preventDefault()
-        setUserDetails({
-            name: event.target.username.value,
-            about: event.target.aboutUser.value,
-        })
-        setEditFormIsOpen(false);
+  useEffect(() => {
+    const setDataFromDb = async () => {
+      const userDetailsFromDb = await db.bio.get('info')
+      const profilePhotoFromDb = await db.bio.get('profilePhoto')
+      userDetailsFromDb && setUserDetails(userDetailsFromDb)
+      profilePhotoFromDb && setProfilePhoto(profilePhotoFromDb)
     }
 
-   
+    setDataFromDb()
+  }, [userDetails])
 
+  const updateUserDetails = async (event) => {
+    event.preventDefault()
+    const objectData = {
+      name: event.target.nameOfUser.value,
+      about: event.target.aboutUser.value,
+    }
 
-    const editForm = (
-        <form className="edit-bio-form" onSubmit={(e) => updateUserDetails(e)}>
-            <input type="text" id="" name="username" placeholder="Your name" required />
-            <br /><br />
-            <input type="text" id="" name="aboutUser" placeholder="About you" required />
-            <br />
-            <button type="button" className="cancel-button" onClick={() => {setEditFormIsOpen(false)}}>Cancel</button>
-            <button type="submit">Save</button>
-        </form>
-    ) 
+    setUserDetails(objectData)
+    await db.bio.put(objectData, 'info')
+    setEditFormIsOpen(false)
+  }
 
-    const editButton = <button onClick={() => {setEditFormIsOpen(true)}}>Edit</button>
+  const updateProfilePhoto = async () => {
+    const newProfilePhoto = await getPhotoUrl('#profilePhotoInput')
+    setProfilePhoto(newProfilePhoto)
+    await db.bio.put(newProfilePhoto, 'profilePhoto')
+  }
+
+  const editForm = (
+    <form className="edit-bio-form" onSubmit={(e) => updateUserDetails(e)}>
+      <input type="text" id="" name="nameOfUser" defaultValue={userDetails?.name} placeholder="Your name" required />
+      <input type="text" id="" name="aboutUser" defaultValue={userDetails?.about} placeholder="About you" required />
+      <br />
+      <button type="button" className="cancel-button" onClick={() => setEditFormIsOpen(false)}>
+        Cancel
+      </button>
+      <button type="submit">Save</button>
+    </form>
+  )
+
+  const editButton = <button onClick={() => setEditFormIsOpen(true)}>Edit</button>
 
   
     return(
